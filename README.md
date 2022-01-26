@@ -1,12 +1,26 @@
+prom-test
+===
 
-run http server with metrics
+This repo is a simple example of go + prometheus in docker.
 
-```
-go run .
-```
-
-run prometheus
+Run the example with:
 
 ```
-docker run -p 9090:9090 -v $PWD/prometheus.yml:/etc/prometheus/prometheus.yml prom/prometheus
+docker-compose up
+```
+
+Once it's up, the go http server will listen on the host at `:8080`, and you can visit prometheus at `:9090`.
+
+Some other stuff
+---
+
+```
+# run the containers in the background
+docker-compose -d
+
+# see what containers are running
+docker-compose ps
+
+# Clean up everything we made (containers, images, volumes, networks)
+docker-compose down --rmi local -v
 ```
