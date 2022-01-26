@@ -11,6 +11,8 @@ docker-compose up
 
 Once it's up, the go http server will listen on the host at `:8080`, and you can visit prometheus at `:9090`.
 
+The go app exposes a `views` metric, which increases by 1 every time root page is visited. You can search for and graph it over time in prometheus.
+
 Some other stuff
 ---
 
