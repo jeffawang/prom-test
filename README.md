@@ -16,7 +16,7 @@ Some other stuff
 
 ```
 # run the containers in the background
-docker-compose -d
+docker-compose up -d
 
 # see what containers are running
 docker-compose ps
