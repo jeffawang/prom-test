@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -24,7 +25,10 @@ func main() {
 	prometheus.MustRegister(views)
 	http.Handle("/metrics", promhttp.Handler())
 
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func root(w http.ResponseWriter, r *http.Request) {
