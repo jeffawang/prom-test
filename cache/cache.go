@@ -10,9 +10,9 @@ import (
 )
 
 var (
-	metric = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "some_metric",
-		Help: "Just a test metric",
+	kvSize = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "kv_size",
+		Help: "How many kv pairs are stored",
 	})
 	views = prometheus.NewCounter(prometheus.CounterOpts{
 		Name: "views",
@@ -24,6 +24,7 @@ func main() {
 	http.HandleFunc("/", root)
 
 	prometheus.MustRegister(views)
+	prometheus.MustRegister(kvSize)
 	http.Handle("/metrics", promhttp.Handler())
 
 	err := http.ListenAndServe(":8080", nil)
@@ -42,12 +43,20 @@ func root(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type KV struct {
+type KVStore struct {
+	Data map[string]string `json:"data"`
+}
+
+type KVPair struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }
 
-var kv KV
+var kv KVStore
+
+func init() {
+	kv.Data = make(map[string]string)
+}
 
 func get(w http.ResponseWriter, r *http.Request) {
 	e := json.NewEncoder(w)
@@ -61,7 +70,7 @@ func get(w http.ResponseWriter, r *http.Request) {
 func post(w http.ResponseWriter, r *http.Request) {
 	decoder := json.NewDecoder(r.Body)
 
-	var req KV
+	var req KVPair
 	err := decoder.Decode(&req)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -69,7 +78,8 @@ func post(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	kv = req
+	kv.Data[req.Key] = req.Value
+	kvSize.Set(float64(len(kv.Data)))
 
 	e := json.NewEncoder(w)
 	err = e.Encode(req)
